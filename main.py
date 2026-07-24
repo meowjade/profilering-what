@@ -95,7 +95,7 @@ class Tree:
             else:
                 break
 
-    def find_node(self, id: int):
+    def find_node(self, id: int) -> Node | None:
         """Find a student node by ID.
 
         Args:
@@ -113,6 +113,49 @@ class Tree:
             else:
                 break
         return current
+
+    def delete(self, id: int) -> None:
+        """Delete a student node by ID."""
+        found_parent = self.root
+        found = self.root
+        while found is not None:
+            if found.id > id:
+                found_parent = found
+                found = found.left
+            elif found.id < id:
+                found_parent = found
+                found = found.right
+            else:
+                break
+
+        if found is None:
+            return
+        # if only 1 child
+        if found.left is None != found.right is None:
+            if found.left is not None:
+                replace = found.left
+            elif found.right is not None:
+                replace = found.right
+            else:
+                return
+            found.id = replace.id
+            found.name = replace.name
+            found.left = replace.left
+            found.right = replace.right
+            return
+        # if 2 children
+        if found.left is not None and found.right is not None:
+            min = found.right.inorder()[0]
+            self.delete(min["id"])
+            found.id = min["id"]
+            found.name = min["name"]
+            return
+        # found has no children, just nuke the Node
+        if found_parent is not None:
+            if found_parent.left == found:
+                found_parent.left = None
+            else:
+                found_parent.right = None
 
     def preorder(self) -> list[dict]:
         """Return preorder traversal of tree.
@@ -178,5 +221,15 @@ if __name__ == "__main__":
         print(f"Find ID 999: Found node with id={node.id}, name={node.name}")
     else:
         print("Find ID 999: Not found")
+
+    t2 = Tree()
+    t2.add(50, "a")
+    t2.add(40, "b")
+    t2.add(70, "c")
+    t2.add(60, "d")
+    t2.add(80, "e")
+    print(t2.preorder())
+    t2.delete(50)
+    print(t2.preorder())
 
     print("\nTest complete! Run 'python test_main.py' to run automated tests.")
